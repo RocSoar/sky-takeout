@@ -31,8 +31,8 @@
         <lombok>1.18.34</lombok>
         <commons.lang>2.4</commons.lang>
         <fastjson>2.0.52</fastjson>
-        <druid.spring.boot.starter>1.2.22</druid.spring.boot.starter>
-        <knife4j.spring.boot.starter>3.0.3</knife4j.spring.boot.starter>
+        <druid.spring.boot.starter>1.2.23</druid.spring.boot.starter>
+        <knife4j.spring.boot.starter>4.5.0</knife4j.spring.boot.starter>
         <aspectjrt>1.9.22.1</aspectjrt>
         <aspectjweaver>1.9.22.1</aspectjweaver>
         <jackson.databind>2.17.2</jackson.databind>
@@ -79,11 +79,19 @@
                 <artifactId>druid-spring-boot-starter</artifactId>
                 <version>${druid.spring.boot.starter}</version>
             </dependency>
+
+            <!--此包仅能在spring boot 2.7下正常使用, 在spring boot3下请使用knife4j-openapi3-jakarta-->
+            <!--<dependency>-->
+            <!--    <groupId>com.github.xiaoymin</groupId>-->
+            <!--    <artifactId>knife4j-spring-boot-starter</artifactId>-->
+            <!--    <version>${knife4j.spring.boot.starter}</version>-->
+            <!--</dependency>-->
             <dependency>
                 <groupId>com.github.xiaoymin</groupId>
-                <artifactId>knife4j-spring-boot-starter</artifactId>
+                <artifactId>knife4j-openapi3-jakarta-spring-boot-starter</artifactId>
                 <version>${knife4j.spring.boot.starter}</version>
             </dependency>
+
             <dependency>
                 <groupId>org.aspectj</groupId>
                 <artifactId>aspectjrt</artifactId>
