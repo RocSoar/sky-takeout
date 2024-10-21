@@ -3,8 +3,8 @@ package com.sky.config;
 import com.sky.interceptor.JwtTokenAdminInterceptor;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
@@ -20,17 +20,15 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupp
 /**
  * 配置类，注册web层相关组件
  */
-@Configuration
+@RequiredArgsConstructor
 @Slf4j
+@Configuration
 public class WebMvcConfiguration extends WebMvcConfigurationSupport {
 
-    @Autowired
-    private JwtTokenAdminInterceptor jwtTokenAdminInterceptor;
+    private final JwtTokenAdminInterceptor jwtTokenAdminInterceptor;
 
     /**
      * 注册自定义拦截器
-     *
-     * @param registry
      */
     @Override
     protected void addInterceptors(InterceptorRegistry registry) {
@@ -53,9 +51,9 @@ public class WebMvcConfiguration extends WebMvcConfigurationSupport {
         return new OpenAPI().info(info);
     }
 
-    /**
-     * 通过knife4j生成接口文档(OpenAPI2/Swagger2)
-     */
+//    /**
+//     * 通过knife4j生成接口文档(OpenAPI2/Swagger2)
+//     */
 //    @Bean
 //    public Docket docket() {
 //        log.info("准备生成接口文档...");
@@ -75,7 +73,6 @@ public class WebMvcConfiguration extends WebMvcConfigurationSupport {
 
     /**
      * 映射/doc.html路径到静态资源文件夹
-     * @param registry
      */
     @Override
     protected void addResourceHandlers(ResourceHandlerRegistry registry) {
