@@ -6,11 +6,13 @@ import com.sky.constant.StatusConstant;
 import com.sky.context.BaseContext;
 import com.sky.dto.EmployeeDTO;
 import com.sky.dto.EmployeeLoginDTO;
+import com.sky.dto.EmployeePageQueryDTO;
 import com.sky.entity.Employee;
 import com.sky.exception.AccountLockedException;
 import com.sky.exception.AccountNotFoundException;
 import com.sky.exception.PasswordErrorException;
 import com.sky.mapper.EmployeeMapper;
+import com.sky.result.PageResult;
 import com.sky.service.EmployeeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Objects;
 
 @Slf4j
@@ -67,8 +70,6 @@ public class EmployeeServiceImpl implements EmployeeService {
      */
     @Override
     public void save(EmployeeDTO employeeDTO) {
-        log.info("当前线程的id:{}", Thread.currentThread().getId());
-
         Employee employee = new Employee();
 //        对象属性拷贝
         BeanUtils.copyProperties(employeeDTO, employee);
@@ -81,12 +82,27 @@ public class EmployeeServiceImpl implements EmployeeService {
         employee.setCreateTime(LocalDateTime.now());
         employee.setUpdateTime(LocalDateTime.now());
 
-//        设置创建人id和修改人id
+        // 获取在当前线程局部变量中存储的用户id
         Long currentId = BaseContext.getCurrentId();
+//        设置创建人id和修改人id
         employee.setCreateUser(currentId);
         employee.setUpdateUser(currentId);
 
         employeeMapper.insert(employee);
+    }
+
+    /**
+     * 员工分页查询
+     */
+    @Override
+    public PageResult<Employee> pageQuery(EmployeePageQueryDTO employeePageQueryDTO) {
+        String name = employeePageQueryDTO.getName();
+        int page = employeePageQueryDTO.getPage();
+        int pageSize = employeePageQueryDTO.getPageSize();
+
+        Long total = employeeMapper.count(name);
+        List<Employee> records = employeeMapper.page((page - 1) * pageSize, pageSize, name);
+        return new PageResult<>(total, records);
     }
 
 }

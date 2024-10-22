@@ -5,6 +5,8 @@ import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
+import java.util.List;
+
 @Mapper
 public interface EmployeeMapper {
 
@@ -20,4 +22,14 @@ public interface EmployeeMapper {
     @Insert("insert into employee(name, username, password, phone, sex, id_number, status, create_time, update_time, create_user, update_user) " +
             "VALUES(#{name},#{username},#{password},#{phone},#{sex},#{idNumber},#{status},#{createTime},#{updateTime},#{createUser},#{updateUser})")
     void insert(Employee employee);
+
+    /**
+     * 查询员工数量
+     */
+    Long count(String name);
+
+    /**
+     * 员工分页查询
+     */
+    List<Employee> page(int start, int pageSize, String name);
 }

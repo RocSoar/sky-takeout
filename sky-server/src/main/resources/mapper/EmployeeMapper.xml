@@ -2,4 +2,25 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.sky.mapper.EmployeeMapper">
+
+    <!--    员工分页查询条件-->
+    <sql id="employeeFilter">
+        <where>
+            <if test="name != null and name != ''">
+                name like concat('%',#{name},'%')
+            </if>
+        </where>
+    </sql>
+    <!--    员工分页查询总数-->
+    <select id="count" resultType="java.lang.Long">
+        select count(*) from employee
+        <include refid="employeeFilter"/>
+    </select>
+    <!--    员工分页查询列表-->
+    <select id="page" resultType="com.sky.entity.Employee">
+        select * from employee
+        <include refid="employeeFilter"/>
+        order by update_time desc
+        limit #{start},#{pageSize}
+    </select>
 </mapper>
