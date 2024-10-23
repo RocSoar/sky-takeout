@@ -32,4 +32,9 @@ public interface EmployeeMapper {
      * 员工分页查询
      */
     List<Employee> page(int start, int pageSize, String name);
+
+    /**
+     * 根据id动态修改员工
+     */
+    void update(Employee employee);
 }

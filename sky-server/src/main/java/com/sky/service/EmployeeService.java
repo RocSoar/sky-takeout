@@ -22,4 +22,9 @@ public interface EmployeeService {
      * 员工分页查询
      */
     PageResult<Employee> pageQuery(EmployeePageQueryDTO employeePageQueryDTO);
+
+    /**
+     * 启用禁用员工账号, status, 0 禁用, 1 启用
+     */
+    void setStatus(Integer status, Long id);
 }

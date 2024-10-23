@@ -11,10 +11,7 @@ import com.sky.result.Result;
 import com.sky.service.EmployeeService;
 import com.sky.utils.JwtUtil;
 import com.sky.vo.EmployeeLoginVO;
-import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -89,9 +86,22 @@ public class EmployeeController {
      */
     @GetMapping("/page")
     @Operation(summary = "员工分页查询")
-    public Result<PageResult<Employee>> page(EmployeePageQueryDTO employeePageQueryDTO) {
-        log.info("员工分页查询, 参数:{}", employeePageQueryDTO);
-        PageResult<Employee> pageResult = employeeService.pageQuery(employeePageQueryDTO);
+    public Result<PageResult<Employee>> page(@RequestParam(required = false) String name, Integer page, Integer pageSize) {
+        EmployeePageQueryDTO pageQueryDTO = new EmployeePageQueryDTO(name, page, pageSize);
+        log.info("员工分页查询, 参数:{}", pageQueryDTO);
+        PageResult<Employee> pageResult = employeeService.pageQuery(pageQueryDTO);
         return Result.success(pageResult);
     }
+
+    /**
+     * 启用禁用员工账号, status, 0 禁用, 1 启用
+     */
+    @PostMapping("/status/{status}")
+    @Operation(summary = "启用禁用员工账号")
+    public Result<Object> setStatus(@PathVariable Integer status, Long id) {
+        log.info("启用禁用员工账号,{},{}", status, id);
+        employeeService.setStatus(status, id);
+        return Result.success();
+    }
+
 }
