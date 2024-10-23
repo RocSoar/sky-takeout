@@ -38,15 +38,15 @@ public class JwtTokenAdminInterceptor implements HandlerInterceptor {
 
         //2、校验令牌
         try {
-            log.info("jwt校验:{}", token);
+            log.info("jwt校验: {}", token);
             Claims claims = JwtUtil.parseJWT(jwtProperties.getAdminSecretKey(), token);
             Long empId = Long.valueOf(claims.get(JwtClaimsConstant.EMP_ID).toString());
             BaseContext.setCurrentId(empId);  // 将当前用户id存储在当前线程局部变量中, 每次请求进来tomcat都会开一个新线程
-            log.info("当前员工id：{}", empId);
+            log.info("当前登录员工id：{}", empId);
             //3、通过，放行
             return true;
         } catch (Exception ex) {
-            //4、不通过，响应401状态码
+            //4、不通过，响应401 Unauthorized 状态码
             response.setStatus(401);
             return false;
         }
