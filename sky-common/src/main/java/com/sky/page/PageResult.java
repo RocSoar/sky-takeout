@@ -1,4 +1,4 @@
-package com.sky.result;
+package com.sky.page;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

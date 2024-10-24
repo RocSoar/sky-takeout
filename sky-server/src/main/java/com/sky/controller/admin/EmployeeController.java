@@ -6,7 +6,7 @@ import com.sky.dto.EmployeeLoginDTO;
 import com.sky.dto.EmployeePageQueryDTO;
 import com.sky.entity.Employee;
 import com.sky.properties.JwtProperties;
-import com.sky.result.PageResult;
+import com.sky.page.PageResult;
 import com.sky.result.Result;
 import com.sky.service.EmployeeService;
 import com.sky.utils.JwtUtil;
@@ -75,9 +75,9 @@ public class EmployeeController {
      */
     @PostMapping
     @Operation(summary = "新增员工")
-    public Result<Object> save(@RequestBody EmployeeDTO employeeDTO) {
+    public Result<Object> add(@RequestBody EmployeeDTO employeeDTO) {
         log.info("新增员工:{}", employeeDTO);
-        employeeService.save(employeeDTO);
+        employeeService.add(employeeDTO);
         return Result.success();
     }
 
@@ -87,19 +87,19 @@ public class EmployeeController {
     @GetMapping("/page")
     @Operation(summary = "员工分页查询")
     public Result<PageResult<Employee>> page(@RequestParam(required = false) String name, Integer page, Integer pageSize) {
-        EmployeePageQueryDTO pageQueryDTO = new EmployeePageQueryDTO(name, page, pageSize);
+        EmployeePageQueryDTO pageQueryDTO = new EmployeePageQueryDTO(page, pageSize, name);
         log.info("员工分页查询, 参数:{}", pageQueryDTO);
-        PageResult<Employee> pageResult = employeeService.pageQuery(pageQueryDTO);
+        PageResult<Employee> pageResult = employeeService.page(pageQueryDTO);
         return Result.success(pageResult);
     }
 
     /**
-     * 启用禁用员工账号, status, 0 禁用, 1 启用
+     * 启用、禁用员工账号, status: 0 禁用, 1 启用
      */
     @PostMapping("/status/{status}")
-    @Operation(summary = "启用禁用员工账号")
+    @Operation(summary = "启用禁用员工账号, status: 0 禁用, 1 启用")
     public Result<Object> setStatus(@PathVariable Integer status, Long id) {
-        log.info("启用禁用员工账号,{},{}", status, id);
+        log.info("启用禁用员工账号,id:{}, status:{}", id, status);
         employeeService.setStatus(status, id);
         return Result.success();
     }

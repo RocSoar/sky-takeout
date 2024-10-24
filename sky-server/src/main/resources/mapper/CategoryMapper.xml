@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sky.mapper.CategoryMapper">
+
+    <!--    分页查询条件-->
+    <sql id="categoryFilter">
+        <where>
+            <if test="name != null and name != ''">
+                name like concat('%',#{name},'%')
+            </if>
+            <if test="type != null">
+                and type = #{type}
+            </if>
+        </where>
+    </sql>
+
+    <!--     分页查询总数-->
+    <select id="count" parameterType="com.sky.dto.CategoryPageQueryDTO" resultType="java.lang.Long">
+        select count(*) from category
+        <include refid="categoryFilter"/>
+    </select>
+    <!--    分页查询列表-->
+    <select id="page" parameterType="com.sky.dto.CategoryPageQueryDTO" resultType="com.sky.entity.Category">
+        select * from category
+        <include refid="categoryFilter"/>
+        order by sort, update_time desc
+        limit #{startIndex},#{pageSize}
+    </select>
+
+    <!--    根据id修改分类-->
+    <update id="update" parameterType="Category">
+        update category
+        <set>
+            <if test="type != null">
+                type = #{type},
+            </if>
+            <if test="name != null and name != ''">
+                name = #{name},
+            </if>
+            <if test="sort != null">
+                sort = #{sort},
+            </if>
+            <if test="status != null">
+                status = #{status},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime},
+            </if>
+            <if test="updateUser != null">
+                update_user = #{updateUser}
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <!--    根据类型查询分类, 类型: 1 菜品分类, 2 套餐分类-->
+    <select id="list" resultType="Category">
+        select * from category
+        where status = 1
+        <if test="type != null">
+            and type = #{type}
+        </if>
+        order by sort, update_time desc
+    </select>
+</mapper>

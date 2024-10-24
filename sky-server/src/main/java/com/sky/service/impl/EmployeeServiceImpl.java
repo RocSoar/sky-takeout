@@ -12,7 +12,7 @@ import com.sky.exception.AccountLockedException;
 import com.sky.exception.AccountNotFoundException;
 import com.sky.exception.PasswordErrorException;
 import com.sky.mapper.EmployeeMapper;
-import com.sky.result.PageResult;
+import com.sky.page.PageResult;
 import com.sky.service.EmployeeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -69,7 +69,7 @@ public class EmployeeServiceImpl implements EmployeeService {
      * 新增员工
      */
     @Override
-    public void save(EmployeeDTO employeeDTO) {
+    public void add(EmployeeDTO employeeDTO) {
         Employee employee = new Employee();
 //        对象属性拷贝
         BeanUtils.copyProperties(employeeDTO, employee);
@@ -88,31 +88,29 @@ public class EmployeeServiceImpl implements EmployeeService {
         employee.setCreateUser(currentId);
         employee.setUpdateUser(currentId);
 
-        employeeMapper.insert(employee);
+        employeeMapper.add(employee);
     }
 
     /**
      * 员工分页查询
      */
     @Override
-    public PageResult<Employee> pageQuery(EmployeePageQueryDTO employeePageQueryDTO) {
-        String name = employeePageQueryDTO.getName();
-        int page = employeePageQueryDTO.getPage();
-        int pageSize = employeePageQueryDTO.getPageSize();
-
-        Long total = employeeMapper.count(name);
-        List<Employee> records = employeeMapper.page((page - 1) * pageSize, pageSize, name);
+    public PageResult<Employee> page(EmployeePageQueryDTO employeePageQueryDTO) {
+        Long total = employeeMapper.count(employeePageQueryDTO);
+        List<Employee> records = employeeMapper.page(employeePageQueryDTO);
         return new PageResult<>(total, records);
     }
 
     /**
-     * 启用禁用员工账号, status, 0 禁用, 1 启用
+     * 启用、禁用员工账号, status: 0 禁用, 1 启用
      */
     @Override
     public void setStatus(Integer status, Long id) {
         Employee employee = new Employee();
         employee.setId(id);
         employee.setStatus(status);
+        employee.setUpdateUser(BaseContext.getCurrentId());
+        employee.setUpdateTime(LocalDateTime.now());
         employeeMapper.update(employee);
     }
 

@@ -12,16 +12,16 @@
         </where>
     </sql>
     <!--    员工分页查询总数-->
-    <select id="count" resultType="java.lang.Long">
+    <select id="count" parameterType="com.sky.dto.EmployeePageQueryDTO" resultType="java.lang.Long">
         select count(*) from employee
         <include refid="employeeFilter"/>
     </select>
     <!--    员工分页查询列表-->
-    <select id="page" resultType="com.sky.entity.Employee">
+    <select id="page" parameterType="com.sky.dto.EmployeePageQueryDTO" resultType="com.sky.entity.Employee">
         select * from employee
         <include refid="employeeFilter"/>
         order by update_time desc
-        limit #{start},#{pageSize}
+        limit #{startIndex},#{pageSize}
     </select>
     <!--   根据id动态修改员工-->
     <update id="update" parameterType="com.sky.entity.Employee">
