@@ -3,7 +3,6 @@ package com.sky.service.impl;
 import com.sky.constant.MessageConstant;
 import com.sky.constant.PasswordConstant;
 import com.sky.constant.StatusConstant;
-import com.sky.context.BaseContext;
 import com.sky.dto.EmployeeDTO;
 import com.sky.dto.EmployeeLoginDTO;
 import com.sky.dto.EmployeePageQueryDTO;
@@ -20,10 +19,12 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * 员工管理业务层
+ */
 @Slf4j
 @RequiredArgsConstructor
 @Service
@@ -79,15 +80,9 @@ public class EmployeeServiceImpl implements EmployeeService {
 //        设置默认密码并进行md5加密
         employee.setPassword(DigestUtils.md5DigestAsHex(PasswordConstant.DEFAULT_PASSWORD.getBytes()));
 
-        employee.setCreateTime(LocalDateTime.now());
-        employee.setUpdateTime(LocalDateTime.now());
-
         // 获取在当前线程局部变量中存储的用户id
-        Long currentId = BaseContext.getCurrentId();
-//        设置创建人id和修改人id
-        employee.setCreateUser(currentId);
-        employee.setUpdateUser(currentId);
-
+//        设置创建人id和修改人id、创建时间、更新时间
+//        以上已全部在AutoFillAspect中实现
         employeeMapper.add(employee);
     }
 
@@ -109,8 +104,9 @@ public class EmployeeServiceImpl implements EmployeeService {
         Employee employee = new Employee();
         employee.setId(id);
         employee.setStatus(status);
-        employee.setUpdateUser(BaseContext.getCurrentId());
-        employee.setUpdateTime(LocalDateTime.now());
+
+        //   设置修改人id、更新时间
+//        以上已全部在AutoFillAspect中实现
         employeeMapper.update(employee);
     }
 
@@ -133,9 +129,8 @@ public class EmployeeServiceImpl implements EmployeeService {
 //        对象属性拷贝
         BeanUtils.copyProperties(employeeDTO, employee);
 
-        employee.setUpdateUser(BaseContext.getCurrentId());
-        employee.setUpdateTime(LocalDateTime.now());
-
+//        设置修改人id、更新时间
+//        以上已全部在AutoFillAspect中实现
         employeeMapper.update(employee);
     }
 

@@ -17,6 +17,7 @@ spring:
 mybatis:
   # sql-mapper配置文件路径
   mapper-locations: classpath:mapper/*.xml
+  #  在mapper.xml可不用再写全类名
   type-aliases-package: com.sky.entity
   configuration:
     # 开启驼峰命名自动映射
@@ -31,7 +32,7 @@ logging:
         controller: info
 
 springdoc:
-  # 设置生成api接口文档需要扫描的包
+  # 设置生成openapi3接口文档需要扫描的包
   packages-to-scan: com.sky.controller
   paths-to-match: /**
 
