@@ -7,11 +7,11 @@ import org.springframework.stereotype.Component;
 @Component
 @ConfigurationProperties(prefix = "sky.alioss")
 @Data
-public class AliOssProperties {
+public class AliOSSProperties {
 
     private String endpoint;
-    private String accessKeyId;
-    private String accessKeySecret;
+//    private String accessKeyId;
+//    private String accessKeySecret;
     private String bucketName;
 
 }

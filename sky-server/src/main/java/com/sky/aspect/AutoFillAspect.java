@@ -54,7 +54,7 @@ public class AutoFillAspect {
 //        根据不同的操作类型, 为对应的属性提供反射来赋值
         switch (operationType) {
             case INSERT -> {
-                log.info("开始新增操作公共字段自动填充");
+                log.info("开始新增操作公共字段自动填充...");
 //                通过反射来获取对应方法
                 Method setCreateTime = entityClass.getDeclaredMethod(AutoFillConstant.SET_CREATE_TIME, LocalDateTime.class);
                 Method setCreateUser = entityClass.getDeclaredMethod(AutoFillConstant.SET_CREATE_USER, Long.class);
@@ -72,7 +72,7 @@ public class AutoFillAspect {
                 setUpdateUser.invoke(entity, currentId);
             }
             case UPDATE -> {
-                log.info("开始更新操作公共字段自动填充");
+                log.info("开始更新操作公共字段自动填充...");
 //                通过反射来获取对应方法
                 Method setUpdateTime = entityClass.getDeclaredMethod(AutoFillConstant.SET_UPDATE_TIME, LocalDateTime.class);
                 Method setUpdateUser = entityClass.getDeclaredMethod(AutoFillConstant.SET_UPDATE_USER, Long.class);

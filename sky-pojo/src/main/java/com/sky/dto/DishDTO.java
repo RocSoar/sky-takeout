@@ -17,7 +17,7 @@ public class DishDTO implements Serializable {
     private Long categoryId;
     //菜品价格
     private BigDecimal price;
-    //图片
+    //图片url
     private String image;
     //描述信息
     private String description;

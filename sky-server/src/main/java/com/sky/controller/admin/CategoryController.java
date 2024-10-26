@@ -89,7 +89,7 @@ public class CategoryController {
      */
     @GetMapping("/list")
     @Operation(summary = "根据类型查询分类, 类型: 1 菜品分类, 2 套餐分类")
-    public Result<List<Category>> list(Integer type) {
+    public Result<List<Category>> list(@RequestParam(required = false) Integer type) {
         log.info("根据类型查询分类, type:{}", type);
         List<Category> list = categoryService.list(type);
         return Result.success(list);
