@@ -10,4 +10,77 @@
         values (#{name}, #{categoryId}, #{price}, #{image}, #{description},
                 #{status}, #{createTime}, #{updateTime}, #{createUser}, #{updateUser})
     </insert>
+
+    <!--    分页查询条件-->
+    <sql id="dishFilter">
+        <where>
+            <if test="name != null and name != ''">
+                d.name like concat('%',#{name},'%')
+            </if>
+            <if test="categoryId != null">
+                and d.category_id=#{categoryId}
+            </if>
+            <if test="status != null">
+                and d.status=#{status}
+            </if>
+        </where>
+    </sql>
+    <!--    分页查询总数-->
+    <select id="count" parameterType="dishPageQueryDTO" resultType="java.lang.Long">
+        select count(*) from dish d
+        <include refid="dishFilter"/>
+    </select>
+    <!--    分页查询列表-->
+    <!--    左外链接: 左表全集+与右表交集-->
+    <select id="page" parameterType="dishPageQueryDTO" resultType="dishVO">
+        select d.*, c.name as category_name
+        from dish d
+        left outer join category c
+        on d.category_id = c.id
+        <include refid="dishFilter"/>
+        order by d.update_time desc
+        limit #{startIndex},#{pageSize}
+    </select>
+
+    <!--    根据id修改-->
+    <update id="update" parameterType="dish">
+        update dish
+        <set>
+            <if test="name != null and name != ''">
+                name = #{name},
+            </if>
+            <if test="categoryId != null">
+                category_id = #{categoryId},
+            </if>
+            <if test="price != null">
+                price = #{price},
+            </if>
+            <if test="image != null and image != ''">
+                image=#{image}
+            </if>
+            <if test="description != null and description != ''">
+                description=#{description}
+            </if>
+            <if test="status != null">
+                status = #{status},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime},
+            </if>
+            <if test="updateUser != null">
+                update_user = #{updateUser}
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <!--    批量删除操作-->
+    <!--    for example:-->
+    <!--    delete from db01.tb_emp where id in (18,19,20)-->
+    <delete id="deleteBatch" parameterType="arraylist">
+        delete from dish where id in
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </delete>
 </mapper>

@@ -18,7 +18,7 @@ mybatis:
   # sql-mapper配置文件路径
   mapper-locations: classpath:mapper/*.xml
   #  在mapper.xml可不用再写全类名
-  type-aliases-package: com.sky.entity
+  type-aliases-package: com.sky.entity, com.sky.dto, com.sky.vo
   configuration:
     # 开启驼峰命名自动映射
     map-underscore-to-camel-case: true

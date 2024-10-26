@@ -19,5 +19,4 @@ public class BasePageQuery {
         this.pageSize = pageSize;
         this.startIndex = (page - 1) * pageSize;
     }
-
 }
