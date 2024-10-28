@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sky.mapper.SetmealMapper">
+    <!-- 新增套餐-->
+    <!--    将插入后生成的主键id的值 赋给 传过来的Setmeal对象的id属性-->
+    <insert id="add" parameterType="setmeal" useGeneratedKeys="true" keyProperty="id">
+        insert into setmeal(category_id, name, price, status, description, image,
+                            create_time, update_time, create_user, update_user)
+        values (#{categoryId}, #{name}, #{price}, #{status}, #{description}, #{image},
+                #{createTime}, #{updateTime}, #{createUser}, #{updateUser})
+    </insert>
+
+    <!--    根据id更新-->
+    <update id="update" parameterType="setmeal">
+        update setmeal
+        <set>
+            <if test="categoryId != null">
+                category_id = #{categoryId},
+            </if>
+            <if test="name != null and name != ''">
+                name = #{name},
+            </if>
+            <if test="price != null">
+                price = #{price},
+            </if>
+            <if test="status != null">
+                status = #{status},
+            </if>
+            <if test="description != null and description != ''">
+                description=#{description},
+            </if>
+            <if test="image != null and image != ''">
+                image=#{image},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime},
+            </if>
+            <if test="updateUser != null">
+                update_user = #{updateUser}
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <!--    分页查询条件-->
+    <sql id="setmealFilter">
+        <where>
+            <if test="name != null and name != ''">
+                s.name like concat('%',#{name},'%')
+            </if>
+            <if test="categoryId != null">
+                and s.category_id=#{categoryId}
+            </if>
+            <if test="status != null">
+                and s.status=#{status}
+            </if>
+        </where>
+    </sql>
+    <!--    分页查询总数-->
+    <select id="count" parameterType="setmealPageQueryDTO" resultType="java.lang.Long">
+        select count(*) from setmeal s
+        <include refid="setmealFilter"/>
+    </select>
+    <!--    分页查询列表-->
+    <!--    左外链接: 左表全集+与右表交集-->
+    <select id="page" parameterType="setmealPageQueryDTO" resultType="setmealVO">
+        select s.*, c.name as category_name
+        from setmeal s
+        left outer join category c
+        on s.category_id = c.id
+        <include refid="setmealFilter"/>
+        order by s.update_time desc
+        limit #{startIndex},#{pageSize}
+    </select>
+
+    <!--    根据ids批量查询-->
+    <select id="getByIds" parameterType="list" resultType="com.sky.entity.Setmeal">
+        select * from setmeal where id in
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <!--    批量删除-->
+    <delete id="deleteBatch" parameterType="list">
+        delete from setmeal where id in
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <!--    批量更新-失败的代码-->
+    <!--    <update id="updateBatch" parameterType="arraylist">-->
+    <!--        <foreach collection="setmealList" item="sm" separator=";">-->
+    <!--            update setmeal-->
+    <!--            <set>-->
+    <!--                <if test="sm.categoryId != null">-->
+    <!--                    category_id = #{sm.categoryId},-->
+    <!--                </if>-->
+    <!--                <if test="sm.name != null and sm.name != ''">-->
+    <!--                    name = #{sm.name},-->
+    <!--                </if>-->
+    <!--                <if test="sm.price != null">-->
+    <!--                    price = #{sm.price},-->
+    <!--                </if>-->
+    <!--                <if test="sm.status != null">-->
+    <!--                    status = #{sm.status},-->
+    <!--                </if>-->
+    <!--                <if test="sm.description != null and sm.description != ''">-->
+    <!--                    description=#{sm.description},-->
+    <!--                </if>-->
+    <!--                <if test="sm.image != null and sm.image != ''">-->
+    <!--                    image=#{sm.image},-->
+    <!--                </if>-->
+    <!--                <if test="sm.updateTime != null">-->
+    <!--                    update_time = #{sm.updateTime},-->
+    <!--                </if>-->
+    <!--                <if test="sm.updateUser != null">-->
+    <!--                    update_user = #{sm.updateUser}-->
+    <!--                </if>-->
+    <!--            </set>-->
+    <!--            where id = #{sm.id}-->
+    <!--        </foreach>-->
+    <!--    </update>-->
+</mapper>

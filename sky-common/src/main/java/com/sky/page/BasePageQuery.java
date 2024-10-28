@@ -1,9 +1,11 @@
 package com.sky.page;
 
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.ToString;
 
-@Data
+@Getter
+@ToString
 public class BasePageQuery {
     //页码
     protected int page;
@@ -17,6 +19,22 @@ public class BasePageQuery {
     public BasePageQuery(int page, int pageSize) {
         this.page = page;
         this.pageSize = pageSize;
+        this.startIndex = (page - 1) * pageSize;
+    }
+
+    public void setPage(int page) {
+        this.page = page;
+        calcStartIndex();
+    }
+
+    public void setPageSize(int pageSize) {
+        this.pageSize = pageSize;
+        calcStartIndex();
+    }
+
+    private void calcStartIndex() {
+        if (page == 0 || pageSize == 0)
+            return;
         this.startIndex = (page - 1) * pageSize;
     }
 }

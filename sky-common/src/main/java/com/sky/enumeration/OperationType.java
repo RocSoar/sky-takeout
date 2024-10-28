@@ -13,6 +13,15 @@ public enum OperationType {
     /**
      * 插入操作
      */
-    INSERT
+    INSERT,
 
+//    /**
+//     * 批量更新操作
+//     */
+//    UPDATE_BATCH,
+
+    /**
+     * 批量插入操作
+     */
+    INSERT_BATCH
 }

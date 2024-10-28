@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.sky.mapper.SetmealDishMapper">
-
-    <!--    根据菜品id查询对应的套餐id-->
+    <!--    根据菜品ids查询套餐ids-->
     <select id="getSetmealIdsByDishIds" parameterType="arraylist" resultType="java.lang.Long">
         select setmeal_id from setmeal_dish
         where dish_id in
@@ -10,4 +9,34 @@
             #{dishId}
         </foreach>
     </select>
+
+    <!--    批量添加-->
+    <insert id="addBatch" parameterType="arraylist">
+        insert into setmeal_dish(setmeal_id, dish_id, name, price, copies) VALUES
+        <foreach collection="setmealDishes" item="sd" separator=",">
+            (#{sd.setmealId},#{sd.dishId},#{sd.name},#{sd.price},#{sd.copies})
+        </foreach>
+    </insert>
+
+    <!--    根据菜品实体更新对应的套餐-菜品-->
+    <update id="updateByDish" parameterType="dish">
+        update setmeal_dish
+        <set>
+            <if test="name != null and name != ''">
+                name = #{name},
+            </if>
+            <if test="price != null">
+                price = #{price},
+            </if>
+        </set>
+        where dish_id = #{id}
+    </update>
+
+    <!--    根据套餐ids批量删除套餐菜品关系数据-->
+    <delete id="deleteBatchBySetmealIds" parameterType="list">
+        delete from setmeal_dish where setmeal_id in
+        <foreach collection="setmealIds" item="setmealId" separator="," open="(" close=")">
+            #{setmealId}
+        </foreach>
+    </delete>
 </mapper>

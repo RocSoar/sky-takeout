@@ -56,10 +56,10 @@
                 price = #{price},
             </if>
             <if test="image != null and image != ''">
-                image=#{image}
+                image=#{image},
             </if>
             <if test="description != null and description != ''">
-                description=#{description}
+                description=#{description},
             </if>
             <if test="status != null">
                 status = #{status},
@@ -74,7 +74,7 @@
         where id = #{id}
     </update>
 
-    <!--    批量删除操作-->
+    <!--    根据id批量删除-->
     <!--    for example:-->
     <!--    delete from db01.tb_emp where id in (18,19,20)-->
     <delete id="deleteBatch" parameterType="arraylist">
@@ -83,4 +83,13 @@
             #{id}
         </foreach>
     </delete>
+
+    <!--    根据ids批量查询-->
+    <select id="getByIds" parameterType="list" resultType="com.sky.entity.Dish">
+        select * from dish where id in
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </select>
+
 </mapper>

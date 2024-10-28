@@ -42,7 +42,30 @@ public interface DishMapper {
     Dish getById(Long id);
 
     /**
-     * 批量删除菜品
+     * 根据ids批量查询菜品
+     */
+    List<Dish> getByIds(List<Long> ids);
+
+    /**
+     * 根据id批量删除菜品
      */
     void deleteBatch(List<Long> ids);
+
+    /**
+     * 根据id修改菜品
+     */
+    @AutoFill(OperationType.UPDATE)
+    void update(Dish dish);
+
+    /**
+     * 根据分类id查询菜品
+     */
+    @Select("select * from dish where category_id=#{categoryId}")
+    List<Dish> getByCategoryId(Long categoryId);
+
+    /**
+     * 根据菜品名字查询菜品
+     */
+    @Select("select * from dish where name like concat('%',#{dishName},'%')")
+    List<Dish> getByDishName(String dishName);
 }

@@ -2,6 +2,7 @@ package com.sky.controller.admin;
 
 import com.sky.dto.DishDTO;
 import com.sky.dto.DishPageQueryDTO;
+import com.sky.entity.Dish;
 import com.sky.page.PageResult;
 import com.sky.result.Result;
 import com.sky.service.DishService;
@@ -62,4 +63,60 @@ public class DishController {
         dishService.deleteBatch(ids);
         return Result.success();
     }
+
+    /**
+     * 根据id查询菜品
+     */
+    @GetMapping("/{id}")
+    @Operation(summary = "根据id查询菜品")
+    public Result<DishVO> getById(@PathVariable Long id) {
+        log.info("根据id查询菜品, id:{}", id);
+        DishVO dishVO = dishService.getById(id);
+        return Result.success(dishVO);
+    }
+
+    /**
+     * 根据id修改菜品
+     */
+    @PutMapping
+    @Operation(summary = "根据id修改菜品")
+    public Result<Object> update(@RequestBody DishDTO dishDTO) {
+        log.info("根据id修改菜品:{}", dishDTO);
+        dishService.update(dishDTO);
+        return Result.success();
+    }
+
+    /**
+     * 启售、停售菜品(关联的套餐), status: 0 禁用, 1 启用
+     */
+    @PostMapping("/status/{status}")
+    @Operation(summary = "启售停售菜品(关联的套餐), status: 0 禁用, 1 启用")
+    public Result<Object> setStatus(@PathVariable Integer status, Long id) {
+        log.info("启售停售菜品,id:{}, status:{}", id, status);
+        dishService.setStatus(status, id);
+        return Result.success();
+    }
+
+    /**
+     * 根据分类id查询菜品
+     */
+    @GetMapping(value = "/list", params = "categoryId")
+    @Operation(summary = "根据分类id查询菜品")
+    public Result<List<Dish>> getByCategoryId(@RequestParam("categoryId") Long categoryId) {
+        log.info("根据分类id查询菜品, 分类id:{}", categoryId);
+        List<Dish> dishes = dishService.getByCategoryId(categoryId);
+        return Result.success(dishes);
+    }
+
+    /**
+     * 根据菜品名字查询
+     */
+    @GetMapping(value = "/list", params = "name")
+    @Operation(summary = "根据菜品名字查询菜品")
+    public Result<List<Dish>> getByDishName(@RequestParam("name") String name) {
+        log.info("根据菜品名字查询菜品, {}", name);
+        List<Dish> dishes = dishService.getByDishName(name);
+        return Result.success(dishes);
+    }
+
 }

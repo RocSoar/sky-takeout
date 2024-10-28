@@ -9,6 +9,8 @@
             (#{flavor.dishId},#{flavor.name},#{flavor.value})
         </foreach>
     </insert>
+
+    <!--    * 根据菜品ids批量删除口味数据-->
     <delete id="deleteBatchByDishIds" parameterType="arraylist">
         delete from dish_flavor where dish_id in
         <foreach collection="dishIds" item="dishId" separator="," open="(" close=")">
