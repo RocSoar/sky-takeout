@@ -109,7 +109,7 @@ public class DishController {
     }
 
     /**
-     * 根据菜品名字查询
+     * 根据菜品名字查询菜品
      */
     @GetMapping(value = "/list", params = "name")
     @Operation(summary = "根据菜品名字查询菜品")
