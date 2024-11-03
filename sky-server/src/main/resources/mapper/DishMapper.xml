@@ -11,7 +11,7 @@
                 #{status}, #{createTime}, #{updateTime}, #{createUser}, #{updateUser})
     </insert>
 
-    <!--    分页查询条件-->
+    <!--    动态条件-->
     <sql id="dishFilter">
         <where>
             <if test="name != null and name != ''">
@@ -90,6 +90,23 @@
         <foreach collection="ids" item="id" separator="," open="(" close=")">
             #{id}
         </foreach>
+    </select>
+
+    <!--    根据分类id查询菜品及对应的分类名称-->
+    <select id="getByCategoryIdWithCategoryName" parameterType="long" resultType="com.sky.vo.DishVO">
+        select d.*, c.name as category_name
+        from dish d
+                 left outer join category c
+                                 on d.category_id = c.id
+        where d.category_id = #{categoryId}
+        order by d.update_time desc
+    </select>
+
+    <!--  动态条件查询菜品  -->
+    <select id="dynamicQuery" parameterType="dish" resultType="com.sky.entity.Dish">
+        select * from dish d
+        <include refid="dishFilter"/>
+        order by d.update_time desc
     </select>
 
 </mapper>

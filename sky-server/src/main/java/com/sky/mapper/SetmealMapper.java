@@ -2,8 +2,10 @@ package com.sky.mapper;
 
 import com.sky.annotation.AutoFill;
 import com.sky.dto.SetmealPageQueryDTO;
+import com.sky.entity.Dish;
 import com.sky.entity.Setmeal;
 import com.sky.enumeration.OperationType;
+import com.sky.vo.DishItemVO;
 import com.sky.vo.SetmealVO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
@@ -14,10 +16,21 @@ import java.util.List;
 public interface SetmealMapper {
 
     /**
+     * 动态条件查询套餐
+     */
+    List<Setmeal> dynamicQuery(Setmeal setmeal);
+
+    /**
      * 根据分类id查询套餐的数量
      */
     @Select("select count(id) from setmeal where category_id = #{categoryId}")
-    Integer countByCategoryId(Long id);
+    Integer countByCategoryId(Long categoryId);
+
+    /**
+     * 根据分类id查询套餐
+     */
+    @Select("select * from setmeal where category_id=#{categoryId} order by update_time desc")
+    List<Setmeal> getByCategroryId(Long categoryId);
 
     /**
      * 根据id查询套餐
@@ -62,4 +75,9 @@ public interface SetmealMapper {
      * 批量删除
      */
     void deleteBatch(List<Long> ids);
+
+    /**
+     * 根据套餐id查询包含的菜品
+     */
+    List<DishItemVO> getDishItemBySetmealId(Long setmealId);
 }

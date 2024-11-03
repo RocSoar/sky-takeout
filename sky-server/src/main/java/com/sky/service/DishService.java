@@ -45,6 +45,16 @@ public interface DishService {
     List<Dish> getByCategoryId(Long categoryId);
 
     /**
+     * 根据分类id查询菜品 带有对应的分类名称和对应的口味列表
+     */
+    List<DishVO> getByCategoryIdWithFlavors(Long categoryId, Integer status);
+
+    /**
+     * 动态条件查询菜品及对应的口味
+     */
+    List<DishVO> listWithFlavors(Dish dish);
+
+    /**
      * 根据菜品名字查询菜品
      */
     List<Dish> getByDishName(String name);

@@ -25,7 +25,7 @@ import java.util.Map;
  */
 @Slf4j
 @RequiredArgsConstructor
-@RestController
+@RestController("adminEmployeeController")
 @RequestMapping("/admin/employee")
 @Tag(name = "员工相关接口")
 public class EmployeeController {

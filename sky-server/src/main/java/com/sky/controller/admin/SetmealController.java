@@ -16,7 +16,7 @@ import java.util.List;
 
 @Slf4j
 @RequiredArgsConstructor
-@RestController
+@RestController("adminSetmealController")
 @RequestMapping("/admin/setmeal")
 @Tag(name = "套餐管理接口")
 public class SetmealController {

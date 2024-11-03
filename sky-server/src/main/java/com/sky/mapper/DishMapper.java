@@ -68,4 +68,14 @@ public interface DishMapper {
      */
     @Select("select * from dish where name like concat('%',#{dishName},'%')")
     List<Dish> getByDishName(String dishName);
+
+    /**
+     * 根据分类id查询菜品及对应的分类名称
+     */
+    List<DishVO> getByCategoryIdWithCategoryName(Long categoryId);
+
+    /**
+     * 动态条件查询菜品
+     */
+    List<Dish> dynamicQuery(Dish dish);
 }

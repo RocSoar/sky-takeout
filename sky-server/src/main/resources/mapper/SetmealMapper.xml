@@ -42,7 +42,7 @@
         where id = #{id}
     </update>
 
-    <!--    分页查询条件-->
+    <!--    动态条件-->
     <sql id="setmealFilter">
         <where>
             <if test="name != null and name != ''">
@@ -88,6 +88,24 @@
             #{id}
         </foreach>
     </delete>
+
+    <!--    动态条件查询套餐-->
+    <select id="dynamicQuery" parameterType="setmeal" resultType="com.sky.entity.Setmeal">
+        select * from setmeal s
+        <include refid="setmealFilter"/>
+        order by s.update_time desc
+    </select>
+
+    <!--    根据套餐id查询包含的菜品-->
+    <select id="getDishItemBySetmealId" parameterType="long" resultType="com.sky.vo.DishItemVO">
+        select sd.copies, d.description, d.image, d.name
+        from setmeal_dish sd
+                 left outer join dish d
+                                 on sd.dish_id = d.id
+        where sd.setmeal_id = #{setmealId}
+        order by d.update_time desc
+    </select>
+
 
     <!--    批量更新-失败的代码-->
     <!--    <update id="updateBatch" parameterType="arraylist">-->

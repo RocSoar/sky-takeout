@@ -184,6 +184,35 @@ public class DishServiceImpl implements DishService {
     }
 
     /**
+     * 根据分类id查询菜品 带有对应的分类名称和对应的口味列表
+     */
+    @Override
+    public List<DishVO> getByCategoryIdWithFlavors(Long categoryId, Integer status) {
+        return dishMapper.getByCategoryIdWithCategoryName(categoryId).stream()
+                .filter(dishVO -> dishVO.getStatus().equals(status))
+                .peek(dishVO -> {
+                    List<DishFlavor> flavors = dishFlavorMapper.getByDishId(dishVO.getId());
+                    dishVO.setFlavors(flavors);
+                }).toList();
+    }
+
+    /**
+     * 动态条件查询菜品及对应的口味
+     */
+    @Override
+    public List<DishVO> listWithFlavors(Dish dish) {
+        return dishMapper.dynamicQuery(dish).stream()
+                .map(d -> {
+                    DishVO dishVO = new DishVO();
+                    BeanUtils.copyProperties(d, dishVO);
+                    List<DishFlavor> flavors = dishFlavorMapper.getByDishId(d.getId());
+                    dishVO.setFlavors(flavors);
+                    return dishVO;
+                }).toList();
+    }
+
+
+    /**
      * 根据菜品名字查询菜品
      */
     @Override

@@ -19,7 +19,7 @@ import java.util.List;
  */
 @Slf4j
 @RequiredArgsConstructor
-@RestController
+@RestController("adminCategoryController")
 @RequestMapping("/admin/category")
 @Tag(name = "分类相关接口")
 public class CategoryController {
