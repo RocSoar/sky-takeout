@@ -1,5 +1,6 @@
 package com.sky.controller.admin;
 
+import com.sky.annotation.CleanCache;
 import com.sky.dto.DishDTO;
 import com.sky.dto.DishPageQueryDTO;
 import com.sky.entity.Dish;
@@ -11,6 +12,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,6 +28,7 @@ import java.util.List;
 public class DishController {
 
     private final DishService dishService;
+    private final RedisTemplate<String, List<DishVO>> redisTemplate;
 
     /**
      * 新增菜品
@@ -34,7 +37,11 @@ public class DishController {
     @Operation(summary = "新增菜品")
     public Result<Object> add(@RequestBody DishDTO dishDTO) {
         log.info("新增菜品:{}", dishDTO);
+
         dishService.addWithFlavor(dishDTO);
+
+//      清理缓存数据
+        redisTemplate.delete("dish_" + dishDTO.getCategoryId());
         return Result.success();
     }
 
@@ -58,9 +65,13 @@ public class DishController {
      */
     @DeleteMapping
     @Operation(summary = "批量删除菜品")
+    @CleanCache(pattern = "dish_*")
     public Result<Object> delete(@RequestParam List<Long> ids) {
         log.info("批量删除菜品:{}", ids);
         dishService.deleteBatch(ids);
+
+//        将所有的菜品缓存数据清理掉, 所有以dish_开头的key
+//        已在aop中实现
         return Result.success();
     }
 
@@ -80,9 +91,13 @@ public class DishController {
      */
     @PutMapping
     @Operation(summary = "根据id修改菜品")
+    @CleanCache(pattern = "dish_*")
     public Result<Object> update(@RequestBody DishDTO dishDTO) {
         log.info("根据id修改菜品:{}", dishDTO);
         dishService.update(dishDTO);
+
+        //        将所有的菜品缓存数据清理掉, 所有以dish_开头的key
+//        已在aop中实现
         return Result.success();
     }
 
@@ -91,9 +106,13 @@ public class DishController {
      */
     @PostMapping("/status/{status}")
     @Operation(summary = "启售停售菜品(关联的套餐), status: 0 禁用, 1 启用")
+    @CleanCache(pattern = "dish_*")
     public Result<Object> setStatus(@PathVariable Integer status, Long id) {
         log.info("启售停售菜品,id:{}, status:{}", id, status);
         dishService.setStatus(status, id);
+
+        //        将所有的菜品缓存数据清理掉, 所有以dish_开头的key
+//        已在aop中实现
         return Result.success();
     }
 
