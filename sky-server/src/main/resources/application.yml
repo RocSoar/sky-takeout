@@ -4,14 +4,14 @@ spring:
   main:
     allow-circular-references: true
   datasource:
-    url: jdbc:mysql://${MYSQL_HOST}:${MYSQL_PORT}/${sky.mysql.database}?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowPublicKeyRetrieval=true
-    username: ${MYSQL_USERNAME}
-    password: ${MYSQL_PASSWORD}
+    url: jdbc:mysql://${MYSQL_HOST_REMOTE}:${MYSQL_PORT}/${sky.mysql.database}?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowPublicKeyRetrieval=true
+    username: ${MYSQL_USERNAME_REMOTE}
+    password: ${MYSQL_PASSWORD_REMOTE}
   data:
     redis:
-      host: ${REDIS_HOST}
+      host: ${REDIS_HOST_REMOTE}
       port: ${REDIS_PORT}
-      password: ${REDIS_PASSWORD}
+      password: ${REDIS_PASSWORD_REMOTE}
       database: ${sky.redis.database}
 
 mybatis:
