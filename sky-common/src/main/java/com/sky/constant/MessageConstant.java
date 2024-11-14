@@ -25,5 +25,6 @@ public class MessageConstant {
     public static final String ORDER_STATUS_ERROR = "订单状态错误";
     public static final String ORDER_NOT_FOUND = "订单不存在";
     public static final String SHOPPING_CART_PARAM_INCORRECT = "购物车参数不正确";
+    public static final String DEFAULT_ADDRESS_BOOK_NOT_EXIST = "没有默认地址";
 
 }

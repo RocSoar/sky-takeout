@@ -12,14 +12,12 @@ import com.sky.mapper.SetmealMapper;
 import com.sky.mapper.ShoppingCartMapper;
 import com.sky.service.ShoppingCartService;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
-@Slf4j
 @RequiredArgsConstructor
 public class ShoppingCartServiceImpl implements ShoppingCartService {
     private final ShoppingCartMapper shoppingCartMapper;
@@ -86,5 +84,13 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     @Override
     public List<ShoppingCart> list() {
         return shoppingCartMapper.list(ShoppingCart.builder().userId(BaseContext.getCurrentId()).build());
+    }
+
+    /**
+     * 清空购物车
+     */
+    @Override
+    public void clean() {
+        shoppingCartMapper.deleteByUserId(BaseContext.getCurrentId());
     }
 }
