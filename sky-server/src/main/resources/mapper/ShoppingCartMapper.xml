@@ -19,6 +19,7 @@
         </where>
     </sql>
 
+    <!--    动态条件查询-->
     <select id="list" parameterType="shoppingCart" resultType="com.sky.entity.ShoppingCart">
         select * from shopping_cart
         <include refid="shoppingCartFilter"/>

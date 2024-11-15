@@ -21,6 +21,12 @@ public interface AddressBookMapper {
     List<AddressBook> dynamicQuery(AddressBook addressBook);
 
     /**
+     * 根据主键id查询
+     */
+    @Select("select * from address_book where id=#{id}")
+    AddressBook getById(Long id);
+
+    /**
      * 根据主键id修改地址
      */
     void update(AddressBook addressBook);

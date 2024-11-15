@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -17,6 +18,9 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Orders implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     /**
      * 订单状态 1待付款 2待接单 3已接单 4派送中 5已完成 6已取消
@@ -35,7 +39,6 @@ public class Orders implements Serializable {
     public static final Integer PAID = 1;
     public static final Integer REFUND = 2;
 
-    private static final long serialVersionUID = 1L;
 
     private Long id;
 
