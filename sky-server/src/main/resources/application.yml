@@ -4,12 +4,12 @@ spring:
   main:
     allow-circular-references: true
   datasource:
-    url: jdbc:mysql://${MYSQL_HOST_REMOTE}:${MYSQL_PORT}/${sky.mysql.database}?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://${MYSQL_HOST_DEBIAN}:${MYSQL_PORT}/${sky.mysql.database}?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowPublicKeyRetrieval=true
     username: ${MYSQL_USERNAME_REMOTE}
     password: ${MYSQL_PASSWORD_REMOTE}
   data:
     redis:
-      host: ${REDIS_HOST_REMOTE}
+      host: ${REDIS_HOST_DEBIAN}
       port: ${REDIS_PORT}
       password: ${REDIS_PASSWORD_REMOTE}
       database: ${sky.redis.database}
@@ -40,7 +40,7 @@ sky:
   jwt:
     # 设置jwt签名加密时使用的秘钥
     admin-secret-key: ${JWT_SECRET_KEY}
-    user-secret-key:  ${JWT_SECRET_KEY}
+    user-secret-key: ${JWT_SECRET_KEY}
     # 设置jwt过期时间(ms) 200小时
     admin-ttl: 720000000
     user-ttl: 720000000
@@ -50,3 +50,10 @@ sky:
   wechat:
     appid: ${WX_APPID}
     secret: ${WX_APP_SECRET}
+    mchid: xxx
+    mch-serial-no: xxx
+    private-key-file-path: xxx
+    api-v3-key: xxx
+    we-chat-pay-cert-file-path: xxx
+    notify-url: http://xx.xx.xx.xx/notify/paySuccess
+    refund-notify-url: http://xx.xx.xx.xx/notify/refundSuccess

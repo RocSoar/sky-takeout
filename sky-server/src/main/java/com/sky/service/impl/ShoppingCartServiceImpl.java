@@ -12,6 +12,7 @@ import com.sky.mapper.SetmealMapper;
 import com.sky.mapper.ShoppingCartMapper;
 import com.sky.service.ShoppingCartService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -92,5 +93,31 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     @Override
     public void clean() {
         shoppingCartMapper.deleteByUserId(BaseContext.getCurrentId());
+    }
+
+    /**
+     * 删除购物车中的一个商品
+     */
+    @Override
+    public void sub(ShoppingCartDTO shoppingCartDTO) {
+        ShoppingCart shoppingCart = new ShoppingCart();
+        BeanUtils.copyProperties(shoppingCartDTO, shoppingCart);
+        shoppingCart.setUserId(BaseContext.getCurrentId());
+
+        List<ShoppingCart> list = shoppingCartMapper.list(shoppingCart);
+        if (list == null || list.isEmpty())
+            return;
+
+        ShoppingCart cart = list.get(0);
+        Integer number = cart.getNumber();
+        //判断当前商品在购物车中的份数
+        if (number == 1) {
+            //如果只有一份, 直接删除当前记录
+            shoppingCartMapper.deleteById(cart.getId());
+        } else if (number > 1) {
+            //如果有多份, 把当前份数减一
+            cart.setNumber(number - 1);
+            shoppingCartMapper.updateNumberById(cart);
+        }
     }
 }

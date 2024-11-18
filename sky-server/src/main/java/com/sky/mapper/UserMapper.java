@@ -17,4 +17,10 @@ public interface UserMapper {
      * 新增用户
      */
     void add(User user);
+
+    /**
+     * 根据主键id查询
+     */
+    @Select("select * from user where id=#{userId}")
+    User getById(Long userId);
 }

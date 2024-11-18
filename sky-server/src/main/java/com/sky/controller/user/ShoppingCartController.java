@@ -43,6 +43,17 @@ public class ShoppingCartController {
     }
 
     /**
+     * 删除购物车中的一个商品
+     */
+    @PostMapping("/sub")
+    @Operation(summary = "删除购物车中的一个商品")
+    public Result<Object> sub(@RequestBody ShoppingCartDTO shoppingCartDTO) {
+        log.info("[C端]删除购物车中的一个商品:{}", shoppingCartDTO);
+        shoppingCartService.sub(shoppingCartDTO);
+        return Result.success();
+    }
+
+    /**
      * 清空购物车
      */
     @DeleteMapping("/clean")
