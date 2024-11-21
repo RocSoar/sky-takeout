@@ -1,11 +1,14 @@
 package com.sky.controller.user;
 
+import com.sky.dto.OrdersPageQueryDTO;
 import com.sky.dto.OrdersPaymentDTO;
 import com.sky.dto.OrdersSubmitDTO;
+import com.sky.page.PageResult;
 import com.sky.result.Result;
 import com.sky.service.OrderService;
 import com.sky.vo.OrderPaymentVO;
 import com.sky.vo.OrderSubmitVO;
+import com.sky.vo.OrderVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -50,5 +53,49 @@ public class OrderController {
 //        此为模拟操作, 直接调用支付成功方法, 实际要等微信回调这个方法
         orderService.paySuccess(ordersPaymentDTO.getOrderNumber());
         return Result.success(orderPaymentVO);
+    }
+
+    /**
+     * 历史订单查询
+     */
+    @GetMapping("/historyOrders")
+    @Operation(summary = "历史订单查询")
+    public Result<PageResult<OrderVO>> page(OrdersPageQueryDTO ordersPageQueryDTO) {
+        log.info("[C端]历史订单查询:{}", ordersPageQueryDTO);
+        PageResult<OrderVO> pageResult = orderService.pageQuery4User(ordersPageQueryDTO);
+        return Result.success(pageResult);
+    }
+
+    /**
+     * 查询订单详情
+     */
+    @GetMapping("/orderDetail/{id}")
+    @Operation(summary = "查询订单详情")
+    public Result<OrderVO> details(@PathVariable Long id) {
+        log.info("[C端]查询订单详情:{}", id);
+        OrderVO orderVO = orderService.details(id);
+        return Result.success(orderVO);
+    }
+
+    /**
+     * 用户取消订单
+     */
+    @PutMapping("/cancel/{id}")
+    @Operation(summary = "用户取消订单")
+    public Result<Object> cancel(@PathVariable Long id) {
+        log.info("[C端]用户取消订单:{}", id);
+        orderService.userCancelById(id);
+        return Result.success();
+    }
+
+    /**
+     * 再来一单
+     */
+    @PostMapping("/repetition/{id}")
+    @Operation(summary = "再来一单")
+    public Result<Object> repetition(@PathVariable Long id) {
+        log.info("[C端]再来一单:{}", id);
+        orderService.repetition(id);
+        return Result.success();
     }
 }

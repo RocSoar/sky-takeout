@@ -24,6 +24,11 @@ public interface ShoppingCartMapper {
     void add(ShoppingCart shoppingCart);
 
     /**
+     * 批量添加
+     */
+    void addBatch(List<ShoppingCart> shoppingCartList);
+
+    /**
      * 根据id更新购物车中商品数量
      */
     @Update("update shopping_cart set number=#{number} where id=#{id}")

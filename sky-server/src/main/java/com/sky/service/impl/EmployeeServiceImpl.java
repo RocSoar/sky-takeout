@@ -3,9 +3,11 @@ package com.sky.service.impl;
 import com.sky.constant.MessageConstant;
 import com.sky.constant.PasswordConstant;
 import com.sky.constant.StatusConstant;
+import com.sky.context.BaseContext;
 import com.sky.dto.EmployeeDTO;
 import com.sky.dto.EmployeeLoginDTO;
 import com.sky.dto.EmployeePageQueryDTO;
+import com.sky.dto.PasswordEditDTO;
 import com.sky.entity.Employee;
 import com.sky.exception.AccountLockedException;
 import com.sky.exception.AccountNotFoundException;
@@ -132,6 +134,41 @@ public class EmployeeServiceImpl implements EmployeeService {
 //        设置修改人id、更新时间
 //        以上已全部在AutoFillAspect中实现
         employeeMapper.update(employee);
+    }
+
+    /**
+     * 修改密码
+     */
+    @Override
+    public void editPassword(PasswordEditDTO passwordEditDTO) {
+        Long empId = passwordEditDTO.getEmpId();
+        String oldPassword = passwordEditDTO.getOldPassword();
+        String newPassword = passwordEditDTO.getNewPassword();
+
+        if (empId == null)
+            empId = BaseContext.getCurrentId();
+
+        //1、根据id查询数据库中的数据
+        Employee employee = employeeMapper.getById(empId);
+
+        //2、处理各种异常情况
+        if (employee == null) {
+            //账号不存在
+            throw new AccountNotFoundException(MessageConstant.ACCOUNT_NOT_FOUND);
+        }
+
+        //密码比对
+        // 对前端传过来的旧密码进行md5加密处理
+        oldPassword = DigestUtils.md5DigestAsHex(oldPassword.getBytes());
+        if (!oldPassword.equals(employee.getPassword())) {
+            //密码比对失败
+            throw new PasswordErrorException(MessageConstant.PASSWORD_EDIT_FAILED);
+        }
+
+//        对前端传过来的新密码进行md5加密处理
+        newPassword = DigestUtils.md5DigestAsHex(newPassword.getBytes());
+//        更新员工密码
+        employeeMapper.update(Employee.builder().id(empId).password(newPassword).build());
     }
 
 }

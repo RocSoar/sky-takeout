@@ -48,4 +48,14 @@ public class UserController {
                 .id(userId).openid(user.getOpenid()).token(token).build();
         return Result.success(userLoginVO);
     }
+
+    /**
+     * 用户退出
+     */
+    @PostMapping("/logout")
+    @Operation(summary = "用户退出")
+    public Result<Object> logout() {
+        log.info("用户退出");
+        return Result.success();
+    }
 }

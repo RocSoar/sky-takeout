@@ -11,7 +11,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 /**
- * 订单
+ * 订单实体类
  */
 @Data
 @Builder
@@ -39,8 +39,16 @@ public class Orders implements Serializable {
     public static final Integer PAID = 1;
     public static final Integer REFUND = 2;
 
+    /**
+     * 订单取消原因
+     */
+    public static final String USER_CANCEL = "用户取消";
 
+    //主键id
     private Long id;
+
+    //下单用户id
+    private Long userId;
 
     //订单号
     private String number;
@@ -48,19 +56,7 @@ public class Orders implements Serializable {
     //订单状态 1待付款 2待接单 3已接单 4派送中 5已完成 6已取消 7退款
     private Integer status;
 
-    //下单用户id
-    private Long userId;
-
-    //地址id
-    private Long addressBookId;
-
-    //下单时间
-    private LocalDateTime orderTime;
-
-    //结账时间
-    private LocalDateTime checkoutTime;
-
-    //支付方式 1微信，2支付宝
+    //支付方式 1微信 2支付宝
     private Integer payMethod;
 
     //支付状态 0未支付 1已支付 2退款
@@ -81,8 +77,17 @@ public class Orders implements Serializable {
     //地址
     private String address;
 
+    //地址簿id
+    private Long addressBookId;
+
     //收货人
     private String consignee;
+
+    //下单时间
+    private LocalDateTime orderTime;
+
+    //结账时间
+    private LocalDateTime checkoutTime;
 
     //订单取消原因
     private String cancelReason;

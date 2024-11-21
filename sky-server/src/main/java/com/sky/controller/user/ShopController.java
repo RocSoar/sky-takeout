@@ -15,7 +15,7 @@ import java.util.Objects;
 @RequiredArgsConstructor
 @RestController("userShopController")
 @RequestMapping("/user/shop")
-@Tag(name = "店铺相关接口")
+@Tag(name = "店铺操作接口")
 public class ShopController {
     private final RedisTemplate<String, Integer> redisTemplate;
 
