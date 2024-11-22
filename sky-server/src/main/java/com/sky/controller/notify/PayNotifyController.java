@@ -30,7 +30,7 @@ public class PayNotifyController {
     private final WeChatProperties weChatProperties;
 
     /**
-     * 支付成功回调
+     * 支付成功后微信回调
      */
     @RequestMapping("/paySuccess")
     public void paySuccessNotify(HttpServletRequest request, HttpServletResponse response) throws Exception {

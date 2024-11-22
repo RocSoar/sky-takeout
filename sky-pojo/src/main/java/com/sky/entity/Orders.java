@@ -43,6 +43,7 @@ public class Orders implements Serializable {
      * 订单取消原因
      */
     public static final String USER_CANCEL = "用户取消";
+    public static final String TIMEOUT_CANCEL = "订单超时, 自动取消";
 
     //主键id
     private Long id;

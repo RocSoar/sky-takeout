@@ -11,6 +11,7 @@ import com.sky.exception.ShoppingCartBusinessException;
 import com.sky.mapper.*;
 import com.sky.page.PageResult;
 import com.sky.service.OrderService;
+import com.sky.utils.BaiduMapUtil;
 import com.sky.utils.WeChatPayUtil;
 import com.sky.vo.OrderPaymentVO;
 import com.sky.vo.OrderStatisticsVO;
@@ -37,6 +38,7 @@ public class OrderServiceImpl implements OrderService {
     private final ShoppingCartMapper shoppingCartMapper;
     private final UserMapper userMapper;
     private final WeChatPayUtil weChatPayUtil;
+    private final BaiduMapUtil baiduMapUtil;
 
     /**
      * 用户下单
@@ -49,6 +51,11 @@ public class OrderServiceImpl implements OrderService {
         AddressBook addressBook = addressBookMapper.getById(ordersSubmitDTO.getAddressBookId());
         if (addressBook == null)
             throw new AddressBookBusinessException(MessageConstant.ADDRESS_BOOK_IS_NULL);
+
+        String userAddress = addressBook.getCityName() + addressBook.getDistrictName() + addressBook.getDetail();
+
+//        检查用户的收货地址是否超出配送范围
+        baiduMapUtil.checkOutOfRange(userAddress);
 
         Long userId = BaseContext.getCurrentId();
         List<ShoppingCart> shoppingCartList = shoppingCartMapper.list(ShoppingCart.builder().userId(userId).build());

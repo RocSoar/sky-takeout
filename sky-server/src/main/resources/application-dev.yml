@@ -14,3 +14,7 @@ sky:
   alioss:
     bucket-name: rocsoar-sky
     endpoint: oss-cn-beijing.aliyuncs.com
+  shop:
+    address: 泰安市泰山区泰山大街565号
+  baidu-map:
+    ak: ${BAIDU_MAP_AK}
