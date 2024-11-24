@@ -1,5 +1,6 @@
 package com.sky.service.impl;
 
+import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import com.sky.constant.MessageConstant;
 import com.sky.context.BaseContext;
@@ -13,10 +14,8 @@ import com.sky.page.PageResult;
 import com.sky.service.OrderService;
 import com.sky.utils.BaiduMapUtil;
 import com.sky.utils.WeChatPayUtil;
-import com.sky.vo.OrderPaymentVO;
-import com.sky.vo.OrderStatisticsVO;
-import com.sky.vo.OrderSubmitVO;
-import com.sky.vo.OrderVO;
+import com.sky.vo.*;
+import com.sky.websocket.WebSocketServer;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -26,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
 
 @Service
@@ -39,6 +39,7 @@ public class OrderServiceImpl implements OrderService {
     private final UserMapper userMapper;
     private final WeChatPayUtil weChatPayUtil;
     private final BaiduMapUtil baiduMapUtil;
+    private final WebSocketServer webSocketServer;
 
     /**
      * 用户下单
@@ -111,6 +112,7 @@ public class OrderServiceImpl implements OrderService {
                 user.getOpenid() //微信用户的openid
         );
 
+//        判断该订单是否已经支付过
         if (jsonObject.getString("code") != null && jsonObject.getString("code").equals("ORDERPAID")) {
             throw new OrderBusinessException(MessageConstant.ORDER_IS_PAID);
         }
@@ -152,6 +154,15 @@ public class OrderServiceImpl implements OrderService {
 
         //清空当前用户购物车
         shoppingCartMapper.deleteByUserId(ordersDB.getUserId());
+
+//        通过websocket向管理端推送来单提醒消息
+        OrderNoticeVO orderNoticeVO = OrderNoticeVO.builder()
+                .type(1)  // 1来单提醒, 2客户催单
+                .orderId(ordersDB.getId())
+                .content("订单号: " + outTradeNo).build();
+
+        String jsonString = JSON.toJSONString(orderNoticeVO);
+        webSocketServer.sendToAllClient(jsonString);
     }
 
     /**
@@ -402,7 +413,6 @@ public class OrderServiceImpl implements OrderService {
         orderMapper.update(Orders.builder().id(id).status(Orders.DELIVERY_IN_PROGRESS).build());
     }
 
-
     /**
      * 商家完成订单
      */
@@ -419,6 +429,26 @@ public class OrderServiceImpl implements OrderService {
                 .status(Orders.COMPLETED)
                 .deliveryTime(LocalDateTime.now())
                 .build());
+    }
+
+    /**
+     * 用户催单
+     */
+    @Override
+    public void reminder(Long id) {
+        Orders order = orderMapper.getById(id);
+        if (order == null)
+            throw new OrderBusinessException(MessageConstant.ORDER_NOT_FOUND);
+
+        OrderNoticeVO orderNoticeVO = OrderNoticeVO.builder()
+                .type(2) //1来单提醒, 2用户催单
+                .orderId(id)
+                .content("订单号: " + order.getNumber())
+                .build();
+
+        String jsonString = JSON.toJSONString(orderNoticeVO);
+//        通过websocket向管理端推送催单消息
+        webSocketServer.sendToAllClient(jsonString);
     }
 
 }

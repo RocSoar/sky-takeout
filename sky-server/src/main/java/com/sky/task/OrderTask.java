@@ -34,7 +34,6 @@ public class OrderTask {
 //    0 0 12 * * ?   每天中午12点触发
 //    0 15 10 ? * *    每天上午10:15触发
 //    0 15 10 * * ?     每天上午10:15触发
-//    0 15 10 * * ?    每天上午10:15触发
 //    0 15 10 * * ? 2005    2005年的每天上午10:15触发
 //    0 * 14 * * ?     在每天下午2点到下午2:59期间的每1分钟触发
 //    0 0/5 14 * * ?    在每天下午2点到下午2:55期间的每5分钟触发
@@ -53,7 +52,7 @@ public class OrderTask {
     @Scheduled(cron = "0 * * * * ?")
     public void processTimeoutOrder() {
 //        每分钟定时处理超时订单
-        log.info("定时处理超时订单:{}", LocalDateTime.now());
+        log.info("[Scheduled]定时处理超时订单:{}", LocalDateTime.now());
 
 //        当前时间减15分钟, 比这个时间更早的订单就是超时的订单
         LocalDateTime time = LocalDateTime.now().plusMinutes(-15L);
@@ -71,7 +70,7 @@ public class OrderTask {
     //   在每天凌晨5点处理一直处于派送中状态的订单
     @Scheduled(cron = "0 0 5 * * ?")
     public void processDeliveryOrder() {
-        log.info("定时处理派送中状态的订单: {}", LocalDateTime.now());
+        log.info("[Scheduled]定时处理派送中状态的订单: {}", LocalDateTime.now());
 
 //        当前时间减去5个小时, 只处理今天00:00:00之前的订单
         LocalDateTime time = LocalDateTime.now().plusHours(-5L);

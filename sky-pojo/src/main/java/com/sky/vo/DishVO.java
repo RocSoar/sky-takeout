@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -34,7 +35,9 @@ public class DishVO implements Serializable {
     private LocalDateTime updateTime;
     //分类名称
     private String categoryName;
+
     //菜品关联的口味
+    @Builder.Default
     private List<DishFlavor> flavors = new ArrayList<>();
 
     //private Integer copies;
