@@ -81,4 +81,229 @@
         order by order_time desc
         limit #{startIndex},#{pageSize}
     </select>
+
+    <!--    传统方式查询该天已完成订单的总金额, begin、end、status可以为null-->
+    <select id="sumByDay" parameterType="map" resultType="java.lang.Double">
+        select sum(amount)
+        from orders
+        <where>
+            <if test="status != null">status = #{status}</if>
+            <if test="begin != null">and order_time &gt;= #{begin}</if>
+            <if test="end != null">and order_time &lt;= #{end}</if>
+        </where>
+    </select>
+
+    <!--根据指定的日期范围,聚合查询每天已完成订单的总金额,对于当天没有订单的或status不满足的日期,自动把当天营业额置为0,
+     要求begin、end、status不能为null-->
+    <!--    0. 使用日期生成表-->
+    <!--    需要生成一个包含目标日期范围内所有日期的临时表-->
+    <!--    1.	日期范围生成：-->
+    <!--    •	WITH RECURSIVE date_range 构建一个日期表，从指定的开始日期（begin）到结束日期（end）。-->
+    <!--    •	通过递归生成每日递增的日期。-->
+    <!--    2.	左连接：-->
+    <!--    •	将日期表（date_range）与订单表（orders）进行左连接，确保每一天都存在。-->
+    <!--    •	使用 ON DATE(o.order_time) = d.order_date AND o.status = 5 保证只匹配 status = 5 的订单。-->
+    <!--    3.	处理缺失数据：-->
+    <!--    •	使用 IFNULL(SUM(o.amount), 0) 确保统计为空时返回 0。-->
+    <!--    4.	分组统计：-->
+    <!--    •	使用 GROUP BY d.order_date 按日期分组统计。-->
+    <!--     性能优化建议-->
+    <!--    •	索引：为 order_time 和 status 字段添加索引以提升关联查询性能。-->
+    <!--    •	日期范围优化：对于较大的日期范围，使用实际日期表（如预先存储的 calendar 表）代替递归生成。-->
+    <select id="sumAmountGroupByDay" resultType="turnoverReport">
+        WITH RECURSIVE date_range AS (SELECT DATE(#{begin}) AS order_date
+                                      UNION ALL
+                                      SELECT order_date + INTERVAL 1 DAY
+                                      FROM date_range
+                                      WHERE order_date &lt; DATE(#{end}))
+
+        SELECT d.order_date,
+               IFNULL(SUM(o.amount), 0) AS total_amount
+        FROM date_range d
+                 LEFT JOIN orders o
+                           ON DATE(o.order_time) = d.order_date AND o.status = #{status}
+        GROUP BY d.order_date
+        ORDER BY d.order_date;
+    </select>
+
+    <!--根据指定的日期范围, 聚合查询每天已完成订单的总金额, 只可查询当天有订单的日期,对于当天没有订单的或status不满足的日期,直接缺失,无法把当天营业额置为0
+     begin、end、status可以为null-->
+    <select id="sumAmountGroupByExistDay" resultType="turnoverReport">
+        select
+        DATE(order_time) as order_date, -- 从日期时间中提取日期部分
+        SUM(amount) as total_amount -- 计算每天总金额
+        from orders
+        <where>
+            <if test="status != null">status = #{status}</if>
+            <if test="begin != null">and DATE(order_time) &gt;= #{begin}</if>
+            <if test="end != null">and DATE(order_time) &lt;= #{end}</if>
+        </where>
+        group by order_date -- 根据日期进行分组聚合
+        order by order_date -- 按日期排序
+    </select>
+
+    <!--    根据指定的日期范围,聚合查询每天的订单总数,有效订单数,日期范围内的订单总数,有效订单数-->
+    <!--    第一种写法(性能最好): -->
+    <!--    WITH RECURSIVE: 递归生成临时表(CTE)-->
+    <!--    date_range: 递归生成包含该日期范围内所有日期的临时表-->
+    <!--    day_counts: 分组聚合每日的订单数和有效订单数(status=5), 生成临时表-->
+    <!--    range_counts: 根据day_counts临时表, SUM该日期范围内订单总数和有效订单数, 生成临时表(单行)-->
+    <!--    LEFT JOIN: 左连接, 确保该日期范围内每一天都有数据-->
+    <!--    CROSS JOIN: 生成day_counts和range_counts两个表的笛卡尔积, 对于单行表,就是直接将其附加在后面-->
+    <!--    最后提取相应的字段-->
+    <select id="countOrderByDay" resultType="orderReport">
+        WITH RECURSIVE
+            date_range AS (SELECT DATE(#{begin}) AS date
+                           UNION ALL
+                           SELECT date + INTERVAL 1 DAY
+                           FROM date_range
+                           WHERE date &lt; DATE(#{end})),
+            day_counts AS (SELECT d.date,
+                                  COUNT(o.id)                 AS day_count,
+                                  SUM(IF(o.status = 5, 1, 0)) AS day_valid_count
+                           FROM date_range d
+                                    LEFT JOIN orders o
+                                              ON DATE(o.order_time) = d.date
+                           GROUP BY d.date),
+            range_counts AS (SELECT SUM(day_count)       AS range_count,
+                                    SUM(day_valid_count) AS range_valid_count
+                             FROM day_counts)
+
+        SELECT dc.date,
+               dc.day_count,
+               dc.day_valid_count,
+               rc.range_count,
+               rc.range_valid_count
+        FROM day_counts dc
+                 CROSS JOIN range_counts rc
+    </select>
+
+    <!--    第二种写法-->
+    <!--    WITH RECURSIVE: 递归生成临时表, 只对date_range生效-->
+    <!--    date_range: 递归生成包含该日期范围内所有日期的临时表-->
+    <!--    range_counts: 根据orders表, SUM日期范围内订单总数和有效订单数, 生成临时表(单行)-->
+    <!--    在主查询中,分组聚合每日的订单数和有效订单数(status=5), 提取相应的字段-->
+    <!--    LEFT JOIN: 左连接, 确保该日期范围内每一天都有数据-->
+    <!--    CROSS JOIN: 生成两个表的笛卡尔积, 对于单行表,就是直接将其附加在后面-->
+    <!--    注意GROUP BY, 字段不能少-->
+    <select id="countOrderByDay2" resultType="orderReport">
+        WITH RECURSIVE
+            date_range AS (SELECT DATE(#{begin}) AS date
+                           UNION ALL
+                           SELECT date + INTERVAL 1 DAY
+                           FROM date_range
+                           WHERE date &lt; DATE(#{end})),
+            range_counts AS (SELECT COUNT(id)                 AS range_count,
+                                    SUM(IF(status = 5, 1, 0)) AS range_valid_count
+                             FROM orders
+                             WHERE DATE(order_time) BETWEEN DATE(#{begin}) AND DATE(#{end}))
+
+        SELECT d.date,
+               COUNT(o.id)                 AS day_count,
+               SUM(IF(o.status = 5, 1, 0)) AS day_valid_count,
+               rc.range_count,
+               rc.range_valid_count
+        FROM date_range d
+                 LEFT JOIN orders o
+                           ON DATE(o.order_time) = d.date
+                 CROSS JOIN range_counts rc
+        GROUP BY d.date, rc.range_count, rc.range_valid_count
+        ORDER BY d.date;
+    </select>
+
+    <!--    第三种写法-->
+    <!--    WITH RECURSIVE: 递归生成临时表, 只对date_range生效-->
+    <!--    date_range: 递归生成包含该日期范围内所有日期的临时表-->
+    <!--    valid_counts: 分组聚合出日期范围内每天的有效订单数(status=5), 生成临时表-->
+    <!--    range_counts: 根据orders表, SUM日期范围内订单总数和有效订单数, 生成临时表(单行)-->
+    <!--    在主查询中, 分组聚合每日的订单数, 提取相应的字段-->
+    <!--    LEFT JOIN: 左连接, 确保该日期范围内每一天都有数据-->
+    <!--    CROSS JOIN: 生成两个表的笛卡尔积, 对于单行表,就是直接将其附加在后面-->
+    <!--    注意GROUP BY, 字段不能少-->
+    <select id="countOrderByDay3" resultType="orderReport">
+        WITH RECURSIVE
+            date_range AS (SELECT DATE(#{begin}) AS date
+                           UNION ALL
+                           SELECT date + INTERVAL 1 DAY
+                           FROM date_range
+                           WHERE date &lt; DATE(#{end})),
+            valid_counts AS (SELECT d.date, COUNT(o.id) AS day_valid_count
+                             FROM date_range d
+                                      LEFT JOIN orders o
+                                                ON DATE(o.order_time) = d.date AND o.status = 5
+                             GROUP BY d.date),
+            range_counts AS (SELECT COUNT(id)                 AS range_count,
+                                    SUM(IF(status = 5, 1, 0)) AS range_valid_count
+                             FROM orders
+                             WHERE DATE(order_time) BETWEEN DATE(#{begin}) AND DATE(#{end}))
+        SELECT d.date,
+               COUNT(o.id) AS day_count,
+               vc.day_valid_count,
+               rc.range_count,
+               rc.range_valid_count
+        FROM date_range d
+                 LEFT JOIN orders o
+                           ON DATE(o.order_time) = d.date
+                 LEFT JOIN valid_counts vc
+                           ON vc.date = d.date
+                 CROSS JOIN range_counts rc
+        GROUP BY d.date, vc.day_valid_count, rc.range_count, rc.range_valid_count
+        ORDER BY d.date;
+    </select>
+
+    <!--    统计日期范围内销量排名前<top>的菜品和套餐-->
+    <!--    不包含套餐中的菜品, 但包含套餐本身-->
+    <select id="getSalesTop" resultType="map">
+        SELECT od.name, SUM(od.number) as number
+        FROM orders o
+                 LEFT JOIN order_detail od
+                           ON o.id = od.order_id
+        WHERE DATE(o.order_time) BETWEEN DATE(#{start}) AND DATE(#{end})
+          AND o.status = 5
+        GROUP BY od.name
+        ORDER BY number DESC
+        LIMIT 0, #{top};
+    </select>
+
+    <!--    统计日期范围内销量排名前<top>的菜品-->
+    <!--    包含套餐中的菜品, 不包含套餐本身-->
+    <select id="getDishesTop" resultType="map">
+        WITH temp1 AS (SELECT od.name, od.number, od.setmeal_id
+                       FROM orders o
+                                LEFT JOIN order_detail od
+                                          ON o.id = od.order_id
+                       WHERE DATE(o.order_time) BETWEEN DATE(#{start}) AND DATE(#{end})
+                         AND o.status = 5),
+             temp2 AS (SELECT sd.name, SUM(sd.copies) as number
+                       FROM setmeal_dish sd
+                                INNER JOIN temp1
+                                           ON sd.setmeal_id = temp1.setmeal_id
+                       GROUP BY sd.name),
+             temp3 AS (SELECT temp1.name, temp1.number
+                       FROM temp1
+                       WHERE temp1.setmeal_id IS NULL
+                       UNION ALL
+                       SELECT temp2.name, temp2.number
+                       FROM temp2)
+        SELECT temp3.name, SUM(temp3.number) as number
+        FROM temp3
+        GROUP BY temp3.name
+        ORDER BY number DESC
+        LIMIT 0, #{top};
+    </select>
+
+    <!--    统计日期范围内销量排名前<top>的套餐-->
+    <!--    不包含菜品, 仅统计套餐本身-->
+    <select id="getSetmealsTop" resultType="map">
+        SELECT od.name, SUM(od.number) as number
+        FROM orders o
+                 LEFT JOIN order_detail od
+                           ON o.id = od.order_id
+        WHERE od.setmeal_id IS NOT NULL
+          AND DATE(o.order_time) BETWEEN DATE(#{start}) AND DATE(#{end})
+          AND o.status = 5
+        GROUP BY od.name
+        ORDER BY number DESC
+        LIMIT 0, #{top};
+    </select>
 </mapper>

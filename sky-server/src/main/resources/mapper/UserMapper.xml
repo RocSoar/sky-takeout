@@ -5,4 +5,24 @@
         insert into user (openid, name, phone, sex, id_number, avatar, create_time)
         values (#{openid}, #{name}, #{phone}, #{sex}, #{idNumber}, #{avatar}, #{createTime});
     </insert>
+
+    <!--    统计指定时间区间内的用户数据, 使用临时表分组聚合每天新增用户数, 使用子查询累计总用户-->
+    <select id="countIdGroupByDay" resultType="userReport">
+        WITH RECURSIVE date_range AS (SELECT DATE(#{begin}) AS date
+                                      UNION ALL
+                                      SELECT date + INTERVAL 1 DAY
+                                      FROM date_range
+                                      WHERE date &lt; DATE(#{end}))
+
+        SELECT d.date,
+               COUNT(u.id)                               AS count,
+               (SELECT COUNT(us.id)
+                FROM user us
+                WHERE DATE(us.create_time) &lt;= d.date) AS cumulative_count
+        FROM date_range d
+                 LEFT JOIN user u
+                           ON DATE(u.create_time) = d.date
+        GROUP BY d.date
+        ORDER BY d.date;
+    </select>
 </mapper>

@@ -1,15 +1,22 @@
 package com.sky.mapper;
 
 import com.sky.dto.OrdersPageQueryDTO;
+import com.sky.entity.OrderReport;
 import com.sky.entity.Orders;
+import com.sky.entity.TurnoverReport;
 import com.sky.vo.OrderVO;
+import jakarta.validation.constraints.NotNull;
+import org.apache.ibatis.annotations.MapKey;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 @Mapper
+@SuppressWarnings("rawtypes")
 public interface OrderMapper {
 
     /**
@@ -74,4 +81,49 @@ public interface OrderMapper {
      */
     @Select("select * from orders where status = #{status} and order_time < #{orderTime}")
     List<Orders> getByStatusAndOrderTimeLT(Integer status, LocalDateTime orderTime);
+
+    /**
+     * 传统方式查询该天已完成订单的总金额, begin、end、status可以为null
+     */
+    Double sumByDay(Map map);
+
+    /**
+     * 根据指定的日期范围,聚合查询每天已完成订单的总金额,对于当天没有订单的或status不满足的日期,自动把当天营业额置为0,
+     * 要求begin、end、status不能为null
+     */
+    List<TurnoverReport> sumAmountGroupByDay(@NotNull LocalDate begin, @NotNull LocalDate end, @NotNull Integer status);
+
+    /**
+     * 根据指定的日期范围, 聚合查询每天已完成订单的总金额, 只可查询当天有订单的日期,对于当天没有订单的或status不满足的日期,直接缺失,无法把当天营业额置为0
+     * begin、end、status可以为null
+     */
+    List<TurnoverReport> sumAmountGroupByExistDay(LocalDate begin, LocalDate end, Integer status);
+
+    /**
+     * 根据指定的日期范围, 聚合查询每天的订单总数,有效订单数,日期范围内的订单总数,有效订单数
+     */
+    List<OrderReport> countOrderByDay(LocalDate begin, LocalDate end);
+
+    /**
+     * 统计日期范围内销量排名前<top>的菜品和套餐
+     * 不包含套餐中的菜品, 但包含套餐本身
+     */
+    @MapKey("")
+    List<Map<String, Object>> getSalesTop(LocalDate start, LocalDate end, Integer top);
+
+    /**
+     * 统计日期范围内销量排名前<top>的菜品
+     * 包含套餐中的菜品, 不包含套餐本身
+     */
+    @MapKey("")
+    List<Map<String, Object>> getDishesTop(LocalDate start, LocalDate end, Integer top);
+
+    /**
+     * 统计日期范围内销量排名前<top>的套餐
+     * 不包含菜品, 仅统计套餐本身
+     */
+    @MapKey("")
+    List<Map<String, Object>> getSetmealsTop(LocalDate start, LocalDate end, Integer top);
+
+
 }
