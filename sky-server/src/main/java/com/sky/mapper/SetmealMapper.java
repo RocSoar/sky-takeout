@@ -6,6 +6,7 @@ import com.sky.entity.Dish;
 import com.sky.entity.Setmeal;
 import com.sky.enumeration.OperationType;
 import com.sky.vo.DishItemVO;
+import com.sky.vo.SetmealOverViewVO;
 import com.sky.vo.SetmealVO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
@@ -80,4 +81,9 @@ public interface SetmealMapper {
      * 根据套餐id查询包含的菜品
      */
     List<DishItemVO> getDishItemBySetmealId(Long setmealId);
+
+    /**
+     * 查询已启售套餐数量、已停售套餐数量
+     */
+    SetmealOverViewVO getOverviewSetmeals();
 }

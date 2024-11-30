@@ -90,6 +90,7 @@ public class ReportServiceImpl implements ReportService {
      */
     @Override
     public UserReportVO getUserStatistics(LocalDate begin, LocalDate end) {
+//        性能较好, 只需一次sql查询直接到位
         List<UserReport> userReports = userMapper.countIdGroupByDay(begin, end);
 
         StringJoiner dateList = new StringJoiner(",");
@@ -113,6 +114,7 @@ public class ReportServiceImpl implements ReportService {
      */
     @Override
     public OrderReportVO getOrderStatistics(LocalDate begin, LocalDate end) {
+//        性能较好, 只需一次sql查询直接到位
         List<OrderReport> orderReports = orderMapper.countOrderByDay(begin, end);
 
         Integer rangeValidCount = orderReports.get(0).getRangeValidCount();

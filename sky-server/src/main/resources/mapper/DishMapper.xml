@@ -109,4 +109,10 @@
         order by d.update_time desc
     </select>
 
+    <!--    查询已启售菜品数量、已停售菜品数量-->
+    <select id="getOverviewDishes" resultType="dishOverViewVO">
+        SELECT COALESCE(SUM(IF(status = 1, 1, 0)), 0) AS sold,
+               COALESCE(SUM(IF(status = 0, 1, 0)), 0) AS discontinued
+        FROM dish;
+    </select>
 </mapper>

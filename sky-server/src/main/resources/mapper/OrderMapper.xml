@@ -179,7 +179,7 @@
     </select>
 
     <!--    第二种写法-->
-    <!--    WITH RECURSIVE: 递归生成临时表, 只对date_range生效-->
+    <!--    WITH RECURSIVE: 递归生成临时表-->
     <!--    date_range: 递归生成包含该日期范围内所有日期的临时表-->
     <!--    range_counts: 根据orders表, SUM日期范围内订单总数和有效订单数, 生成临时表(单行)-->
     <!--    在主查询中,分组聚合每日的订单数和有效订单数(status=5), 提取相应的字段-->
@@ -212,7 +212,7 @@
     </select>
 
     <!--    第三种写法-->
-    <!--    WITH RECURSIVE: 递归生成临时表, 只对date_range生效-->
+    <!--    WITH RECURSIVE: 递归生成临时表-->
     <!--    date_range: 递归生成包含该日期范围内所有日期的临时表-->
     <!--    valid_counts: 分组聚合出日期范围内每天的有效订单数(status=5), 生成临时表-->
     <!--    range_counts: 根据orders表, SUM日期范围内订单总数和有效订单数, 生成临时表(单行)-->
@@ -305,5 +305,67 @@
         GROUP BY od.name
         ORDER BY number DESC
         LIMIT 0, #{top};
+    </select>
+
+    <!--    统计日期范围内每一天的营业额、有效订单数、订单完成率、平均客单价、新增用户数-->
+    <!--    营业额: status=5的订单的营业额-->
+    <!--    有效订单数: status=5的订单的数量-->
+    <!--    订单完成率: 有效订单数 / 总订单数-->
+    <!--    平均客单价: 营业额 / 有效订单数-->
+    <!--    新增用户数: user表中当天新增用户的数量-->
+    <select id="getBusinessData" resultType="com.sky.vo.BusinessDataVO">
+        WITH RECURSIVE
+            date_range AS (SELECT DATE(#{start}) AS date
+                           UNION ALL
+                           SELECT date + INTERVAL 1 DAY
+                           FROM date_range
+                           WHERE date &lt; DATE(#{end})),
+            day_counts AS (SELECT DATE(order_time)               AS date,
+                                  COUNT(id)                      AS total_order_count,
+                                  SUM(IF(status = 5, 1, 0))      AS valid_order_count,
+                                  SUM(IF(status = 5, amount, 0)) AS amount
+                           FROM orders
+                           WHERE DATE(order_time) BETWEEN DATE(#{start}) AND DATE(#{end})
+                           GROUP BY DATE(order_time)),
+            day_computes AS (SELECT d.date,
+                                    COALESCE(dc.amount, 0)            AS amount,
+                                    COALESCE(dc.valid_order_count, 0) AS valid_order_count,
+                                    CASE
+                                        WHEN COALESCE(dc.total_order_count, 0) = 0 THEN 0
+                                        ELSE COALESCE(dc.valid_order_count, 0) / dc.total_order_count
+                                        END                           AS valid_ratio,
+                                    CASE
+                                        WHEN COALESCE(dc.valid_order_count, 0) = 0 THEN 0
+                                        ELSE FORMAT(COALESCE(dc.amount, 0) / dc.valid_order_count, 2)
+                                        END                           AS average_amount
+                             FROM date_range d
+                                      LEFT JOIN day_counts dc
+                                                ON dc.date = d.date),
+            user_counts AS (SELECT DATE(create_time) AS date,
+                                   COUNT(id)         AS user_count
+                            FROM user
+                            WHERE DATE(create_time) BETWEEN DATE(#{start}) AND DATE(#{end})
+                            GROUP BY DATE(create_time))
+
+        SELECT day_computes.date,
+               day_computes.amount         AS turnover,
+               day_computes.valid_order_count,
+               day_computes.valid_ratio    AS order_completion_rate,
+               day_computes.average_amount AS unit_price,
+               COALESCE(uc.user_count, 0)  AS new_users
+        FROM day_computes
+                 LEFT JOIN user_counts uc
+                           ON uc.date = day_computes.date
+        ORDER BY day_computes.date;
+    </select>
+
+    <!--    查询全部订单数量、待接单数量、待派送数量、已完成数量、已取消数量-->
+    <select id="getOverviewOrders" resultType="orderOverViewVO">
+        SELECT COUNT(id)                              AS all_orders,
+               COALESCE(SUM(IF(status = 2, 1, 0)), 0) AS waiting_orders,
+               COALESCE(SUM(IF(status = 3, 1, 0)), 0) AS delivered_orders,
+               COALESCE(SUM(IF(status = 5, 1, 0)), 0) AS completed_orders,
+               COALESCE(SUM(IF(status = 6, 1, 0)), 0) AS cancelled_orders
+        FROM orders;
     </select>
 </mapper>

@@ -106,6 +106,13 @@
         order by d.update_time desc
     </select>
 
+    <!--    查询已启售套餐数量、已停售套餐数量-->
+    <select id="getOverviewSetmeals" resultType="com.sky.vo.SetmealOverViewVO">
+        SELECT COALESCE(SUM(IF(status = 1, 1, 0)), 0) AS sold,
+               COALESCE(SUM(IF(status = 0, 1, 0)), 0) AS discontinued
+        FROM setmeal;
+    </select>
+
 
     <!--    批量更新-失败的代码-->
     <!--    <update id="updateBatch" parameterType="arraylist">-->

@@ -4,6 +4,7 @@ import com.sky.annotation.AutoFill;
 import com.sky.dto.DishPageQueryDTO;
 import com.sky.entity.Dish;
 import com.sky.enumeration.OperationType;
+import com.sky.vo.DishOverViewVO;
 import com.sky.vo.DishVO;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
@@ -85,4 +86,9 @@ public interface DishMapper {
      * 动态条件查询菜品
      */
     List<Dish> dynamicQuery(Dish dish);
+
+    /**
+     * 查询已启售菜品数量、已停售菜品数量
+     */
+    DishOverViewVO getOverviewDishes();
 }
