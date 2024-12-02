@@ -313,7 +313,7 @@
     <!--    订单完成率: 有效订单数 / 总订单数-->
     <!--    平均客单价: 营业额 / 有效订单数-->
     <!--    新增用户数: user表中当天新增用户的数量-->
-    <select id="getBusinessData" resultType="com.sky.vo.BusinessDataVO">
+    <select id="getRangedBusinessData" resultType="com.sky.vo.BusinessDataVO">
         WITH RECURSIVE
             date_range AS (SELECT DATE(#{start}) AS date
                            UNION ALL
@@ -357,6 +357,33 @@
                  LEFT JOIN user_counts uc
                            ON uc.date = day_computes.date
         ORDER BY day_computes.date;
+    </select>
+
+    <!--    统计日期范围内总营业额、总有效订单数、订单完成率、平均客单价、总新增用户数-->
+    <!--    营业额: status=5的订单的营业额-->
+    <!--    有效订单数: status=5的订单的数量-->
+    <!--    订单完成率: 有效订单数 / 总订单数-->
+    <!--    平均客单价: 营业额 / 有效订单数-->
+    <!--    新增用户数: user表中新增用户的数量-->
+    <select id="getBusinessData" resultType="businessDataVO">
+        WITH range_order_counts AS (SELECT COALESCE(SUM(IF(status = 5, amount, 0)), 0) AS turnover,
+                                           COALESCE(SUM(IF(status = 5, 1, 0)), 0)      AS valid_order_count,
+                                           CASE
+                                               WHEN COUNT(id) = 0 THEN 0
+                                               ELSE SUM(IF(status = 5, 1, 0)) / COUNT(id)
+                                               END                                     AS order_completion_rate,
+                                           CASE
+                                               WHEN COALESCE(SUM(IF(status = 5, 1, 0)), 0) = 0 THEN 0
+                                               ELSE SUM(IF(status = 5, amount, 0)) / SUM(IF(status = 5, 1, 0))
+                                               END                                     AS unit_price
+                                    FROM orders
+                                    WHERE DATE(order_time) BETWEEN DATE(#{start}) AND DATE(#{end})),
+             range_user_counts AS (SELECT COUNT(id) AS new_users
+                                   FROM user
+                                   WHERE DATE(create_time) BETWEEN DATE(#{start}) AND DATE(#{end}))
+        SELECT *
+        FROM range_order_counts
+                 CROSS JOIN range_user_counts;
     </select>
 
     <!--    查询全部订单数量、待接单数量、待派送数量、已完成数量、已取消数量-->

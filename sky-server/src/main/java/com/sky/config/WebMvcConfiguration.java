@@ -12,6 +12,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
@@ -64,6 +65,16 @@ public class WebMvcConfiguration extends WebMvcConfigurationSupport {
 //        将自己的消息转换器加入容器中,并放在容器的首位,以便优先使用
         converters.add(1, converter); // 原教程index为0, 改为1解决swagger3 Knife4j文档请求异常
     }
+
+//    /**
+//     * 跨域配置
+//     */
+//    @Override
+//    public void addCorsMappings(CorsRegistry registry) {
+//        registry.addMapping("/ws/**") // 匹配路径
+//                .allowedOriginPatterns("*") // 允许所有来源
+//                .allowCredentials(true); // 允许携带 Cookie
+//    }
 
     /**
      * 通过knife4j生成接口文档(OpenAPI3)

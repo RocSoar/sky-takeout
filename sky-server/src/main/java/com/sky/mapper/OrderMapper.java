@@ -131,7 +131,12 @@ public interface OrderMapper {
      * 统计日期范围内每一天的营业额、有效订单数、订单完成率、平均客单价、新增用户数;
      * 若参数start = end, 即为查询单日数据
      */
-    List<BusinessDataVO> getBusinessData(LocalDate start, LocalDate end);
+    List<BusinessDataVO> getRangedBusinessData(LocalDate start, LocalDate end);
+
+    /**
+     * 统计日期范围内总营业额、总有效订单数、订单完成率、平均客单价、总新增用户数
+     */
+    BusinessDataVO getBusinessData(LocalDate start, LocalDate end);
 
     /**
      * 查询全部订单数量、待接单数量、待派送数量、已完成数量、已取消数量

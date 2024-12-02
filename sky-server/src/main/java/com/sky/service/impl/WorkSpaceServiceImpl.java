@@ -26,10 +26,8 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
      */
     @Override
     public BusinessDataVO getBusinessData(LocalDate date) {
-        List<BusinessDataVO> list = orderMapper.getBusinessData(date, date);
-        if (list.isEmpty())
-            return null;
-        return list.get(0);
+        List<BusinessDataVO> list = orderMapper.getRangedBusinessData(date, date);
+        return list.isEmpty() ? null : list.get(0);
     }
 
     /**
